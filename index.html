@@ -1,0 +1,277 @@
+kbc-quiz-pro/
+├── public/
+│   ├── index.html
+│   ├── style.css
+│   ├── script.js
+│   ├── assets/
+│   │   ├── sounds/ (correct.mp3, wrong.mp3, bgm.mp3)
+│   │   └── logo.png
+├── server.js
+├── questions.json
+└── package.json
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KBC Ultimate - Multiplayer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- Header -->
+        <header>
+            <div class="logo">KBC</div>
+            <div id="timer">30</div>
+            <div id="room-info">Mode: Singleplayer</div>
+        </header>
+
+        <main>
+            <!-- Left: Lifelines & Game -->
+            <section class="quiz-section">
+                <div class="lifelines">
+                    <button id="fifty-fifty" onclick="useLifeline('5050')">50:50</button>
+                    <button id="audience-poll" onclick="useLifeline('audience')">Audience</button>
+                    <button id="phone-friend" onclick="useLifeline('phone')">Phone</button>
+                </div>
+
+                <div class="question-box">
+                    <h2 id="question-text">Loading question...</h2>
+                </div>
+
+                <div class="options-grid">
+                    <button class="option" onclick="selectOption(0)"><span class="label">A:</span> <span id="opt0"></span></button>
+                    <button class="option" onclick="selectOption(1)"><span class="label">B:</span> <span id="opt1"></span></button>
+                    <button class="option" onclick="selectOption(2)"><span class="label">C:</span> <span id="opt2"></span></button>
+                    <button class="option" onclick="selectOption(3)"><span class="label">D:</span> <span id="opt3"></span></button>
+                </div>
+            </section>
+
+            <!-- Right: Money Ladder -->
+            <aside class="ladder-section">
+                <ul id="money-ladder">
+                    <li data-amt="70000000">15 • ₹7 Crore</li>
+                    <li data-amt="10000000">14 • ₹1 Crore</li>
+                    <li data-amt="5000000">13 • ₹50 Lakh</li>
+                    <li data-amt="2500000">12 • ₹25 Lakh</li>
+                    <li data-amt="1250000">11 • ₹12.5 Lakh</li>
+                    <li data-amt="640000">10 • ₹6.4 Lakh</li>
+                    <!-- ... more steps ... -->
+                    <li data-amt="5000" class="active">1 • ₹5,000</li>
+                </ul>
+            </aside>
+        </main>
+
+        <div id="status-msg"></div>
+    </div>
+
+    <footer>By Akshat Sinha</footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+:root {
+    --kbc-blue: #020230;
+    --kbc-gold: #ffd700;
+    --kbc-glow: #00d4ff;
+    --kbc-bg: radial-gradient(circle, #0a0a4d 0%, #020220 100%);
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--kbc-bg);
+    color: white;
+    overflow: hidden;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 20px;
+}
+
+/* Question & Options */
+.question-box {
+    border: 2px solid var(--kbc-glow);
+    padding: 20px;
+    margin: 40px 0;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+    clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.option {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 15px;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s;
+    clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+}
+
+.option:hover { background: var(--kbc-glow); color: black; }
+.option.correct { background: green !important; animation: blink 0.5s 3; }
+.option.wrong { background: red !important; }
+
+/* Money Ladder */
+#money-ladder {
+    list-style: none;
+    font-weight: bold;
+}
+
+#money-ladder li {
+    padding: 5px 10px;
+    color: orange;
+}
+
+#money-ladder li.active {
+    color: white;
+    background: var(--kbc-gold);
+    border-radius: 5px;
+}
+
+footer {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+@keyframes blink {
+    50% { opacity: 0.5; }
+}
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+const questions = require('./questions.json');
+
+let rooms = {};
+
+io.on('connection', (socket) => {
+    console.log('User connected:', socket.id);
+
+    socket.on('joinRoom', (roomID) => {
+        socket.join(roomID);
+        if (!rooms[roomID]) {
+            rooms[roomID] = { players: [], currentQuestion: 0, timer: 30 };
+        }
+        rooms[roomID].players.push(socket.id);
+        
+        // Start game if 2 players join
+        if (rooms[roomID].players.length >= 2) {
+            io.to(roomID).emit('startGame', questions[0]);
+        }
+    });
+
+    socket.on('submitAnswer', ({ roomID, answerIndex }) => {
+        const q = questions[rooms[roomID].currentQuestion];
+        if (answerIndex === q.correct) {
+            rooms[roomID].currentQuestion++;
+            io.to(roomID).emit('nextQuestion', questions[rooms[roomID].currentQuestion]);
+        } else {
+            io.to(roomID).emit('gameOver', { winner: 'Others', loser: socket.id });
+        }
+    });
+});
+
+server.listen(3000, () => console.log('KBC Server running on port 3000'));
+[
+  {
+    "question": "Which of these is the capital of India?",
+    "options": ["Mumbai", "New Delhi", "Kolkata", "Chennai"],
+    "correct": 1,
+    "money": "₹5,000"
+  },
+  {
+    "question": "Who is known as the Iron Man of India?",
+    "options": ["Sardar Patel", "Nehru", "Gandhi", "Ambedkar"],
+    "correct": 0,
+    "money": "₹10,000"
+  }
+]
+const socket = io();
+let currentQuestionIndex = 0;
+let moneySteps = [5000, 10000, 20000, 40000, 80000, 160000, 320000, 640000, 1250000, 2500000, 5000000, 10000000, 70000000];
+
+// Audio setup
+const correctSound = new Audio('/assets/sounds/correct.mp3');
+const wrongSound = new Audio('/assets/sounds/wrong.mp3');
+
+function loadQuestion(data) {
+    document.getElementById('question-text').innerText = data.question;
+    data.options.forEach((opt, i) => {
+        document.getElementById(`opt${i}`).innerText = opt;
+        document.querySelectorAll('.option')[i].style.visibility = 'visible';
+    });
+    startTimer();
+}
+
+function selectOption(index) {
+    // In Singleplayer
+    const q = questionBank[currentQuestionIndex];
+    if (index === q.correct) {
+        correctSound.play();
+        highlightCorrect(index);
+        currentQuestionIndex++;
+        updateLadder();
+        setTimeout(() => loadQuestion(questionBank[currentQuestionIndex]), 2000);
+    } else {
+        wrongSound.play();
+        alert("Wrong Answer! Game Over.");
+        location.reload();
+    }
+}
+
+function useLifeline(type) {
+    if (type === '5050') {
+        // Logic to hide 2 random wrong answers
+        const correct = questionBank[currentQuestionIndex].correct;
+        let hidden = 0;
+        document.querySelectorAll('.option').forEach((btn, i) => {
+            if (i !== correct && hidden < 2) {
+                btn.style.visibility = 'hidden';
+                hidden++;
+            }
+        });
+    }
+    // Add logic for Audience Poll (Random percentages adding to 100)
+}
+
+function startTimer() {
+    let time = 30;
+    const timerEl = document.getElementById('timer');
+    const interval = setInterval(() => {
+        time--;
+        timerEl.innerText = time;
+        if (time === 0) {
+            clearInterval(interval);
+            alert("Time Up!");
+        }
+    }, 1000);
+}
+
+function updateLadder() {
+    const listItems = document.querySelectorAll('#money-ladder li');
+    listItems.forEach(li => li.classList.remove('active'));
+    // KBC ladder is bottom-to-top
+    listItems[listItems.length - 1 - currentQuestionIndex].classList.add('active');
+}
