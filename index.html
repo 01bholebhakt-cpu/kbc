@@ -3,115 +3,296 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KBC Ultimate - Singleplayer</title>
+<title>American Beauty Salons | New York</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-:root {
-  --kbc-blue:#020230; --kbc-gold:#ffd700; --kbc-glow:#00d4ff; --kbc-bg:radial-gradient(circle,#0a0a4d 0%,#020220 100%);
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:#fff;color:#111;line-height:1.6}
+a{text-decoration:none;color:inherit}
+img{width:100%;display:block}
+
+header{
+position:fixed;top:0;left:0;width:100%;
+background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08);
+z-index:1000
 }
-body{margin:0;font-family:'Segoe UI',sans-serif;background:var(--kbc-bg);color:white;overflow:hidden;}
-#game-container{display:flex;flex-direction:column;height:100vh;padding:20px;}
-header{display:flex;justify-content:space-between;align-items:center;}
-.question-box{border:2px solid var(--kbc-glow);padding:20px;margin:40px 0;text-align:center;background:rgba(0,0,0,0.5);clip-path:polygon(5% 0%,95% 0%,100% 50%,95% 100%,5% 100%,0% 50%);}
-.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
-.option{background:transparent;border:1px solid white;color:white;padding:15px;text-align:left;cursor:pointer;transition:0.3s;clip-path:polygon(5% 0%,95% 0%,100% 50%,95% 100%,5% 100%,0% 50%);}
-.option:hover{background:var(--kbc-glow);color:black;}
-.option.correct{background:green !important;animation:blink 0.5s 3;}
-.option.wrong{background:red !important;}
-#money-ladder{list-style:none;font-weight:bold;padding:0;}
-#money-ladder li{padding:5px 10px;color:orange;}
-#money-ladder li.active{color:white;background:var(--kbc-gold);border-radius:5px;}
-footer{position:fixed;bottom:10px;right:10px;font-size:0.8rem;color:#888;}
-@keyframes blink{50%{opacity:0.5;}}
+.nav{
+max-width:1200px;margin:auto;
+display:flex;align-items:center;justify-content:space-between;
+padding:15px 20px
+}
+.logo{font-size:22px;font-weight:600}
+.nav ul{display:flex;gap:25px;list-style:none}
+.nav ul li a{font-weight:500}
+.menu-btn{display:none;font-size:26px;cursor:pointer}
+
+.hero{
+margin-top:80px;
+height:90vh;
+background:url('https://images.unsplash.com/photo-1522337360788-8b13dee7a37e') center/cover no-repeat;
+display:flex;align-items:center
+}
+.hero-content{
+background:rgba(255,255,255,.85);
+padding:40px;border-radius:12px;
+max-width:520px;margin-left:10%
+}
+.hero h1{font-size:42px;margin-bottom:15px}
+.hero p{margin-bottom:25px}
+.btn{
+display:inline-block;
+padding:12px 26px;
+border-radius:30px;
+font-weight:500;
+margin-right:10px
+}
+.btn-primary{background:#000;color:#fff}
+.btn-outline{border:2px solid #000}
+
+section{padding:80px 20px}
+.container{max-width:1200px;margin:auto}
+.section-title{text-align:center;margin-bottom:50px}
+.section-title h2{font-size:32px}
+
+.services-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:25px
+}
+.card{
+border-radius:16px;
+overflow:hidden;
+box-shadow:0 8px 25px rgba(0,0,0,.08)
+}
+.card-body{padding:20px}
+.card h3{margin-bottom:10px}
+
+.features{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;text-align:center
+}
+.feature{
+padding:30px;
+border-radius:16px;
+background:#f8f8f8
+}
+
+.gallery{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px
+}
+.gallery img{border-radius:16px}
+
+.testimonials{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:20px
+}
+.review{
+padding:25px;border-radius:16px;
+background:#f8f8f8
+}
+.stars{color:#f5a623;margin-bottom:10px}
+
+.cta{
+background:#000;color:#fff;
+text-align:center;padding:70px 20px
+}
+
+.contact-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:40px
+}
+.contact-info p{margin-bottom:10px}
+form input,form textarea{
+width:100%;padding:12px;margin-bottom:15px;
+border-radius:8px;border:1px solid #ccc
+}
+form button{
+padding:12px;border:none;
+background:#000;color:#fff;
+border-radius:30px;width:100%
+}
+
+footer{
+background:#111;color:#fff;
+padding:40px 20px
+}
+.footer-grid{
+max-width:1200px;margin:auto;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px
+}
+.social a{margin-right:15px;font-weight:500}
+
+@media(max-width:768px){
+.nav ul{display:none;flex-direction:column;background:#fff;position:absolute;top:70px;right:20px;padding:20px;border-radius:12px}
+.nav ul.show{display:flex}
+.menu-btn{display:block}
+.hero{justify-content:center}
+.hero-content{margin:0}
+.contact-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
+
 <body>
-<div id="game-container">
+
 <header>
-<div class="logo">KBC</div>
-<div id="timer">30</div>
-<div id="room-info">Mode: Singleplayer</div>
+<div class="nav">
+<div class="logo">American Beauty Salons</div>
+<div class="menu-btn" onclick="toggleMenu()">☰</div>
+<ul id="menu">
+<li><a href="#services">Services</a></li>
+<li><a href="#gallery">Gallery</a></li>
+<li><a href="#reviews">Reviews</a></li>
+<li><a href="#contact">Contact</a></li>
+</ul>
+</div>
 </header>
-<main style="display:flex;justify-content:space-between;">
-<section class="quiz-section" style="flex:2;margin-right:20px;">
-<div class="lifelines" style="margin-bottom:20px;">
-<button onclick="useLifeline('5050')">50:50</button>
-<button onclick="useLifeline('audience')">Audience</button>
-<button onclick="useLifeline('phone')">Phone</button>
-</div>
-<div class="question-box">
-<h2 id="question-text">Loading question...</h2>
-</div>
-<div class="options-grid">
-<button class="option" onclick="selectOption(0)"><span class="label">A:</span> <span id="opt0"></span></button>
-<button class="option" onclick="selectOption(1)"><span class="label">B:</span> <span id="opt1"></span></button>
-<button class="option" onclick="selectOption(2)"><span class="label">C:</span> <span id="opt2"></span></button>
-<button class="option" onclick="selectOption(3)"><span class="label">D:</span> <span id="opt3"></span></button>
+
+<section class="hero">
+<div class="hero-content">
+<h1>Luxury Beauty & Hair Services You Can Trust</h1>
+<p>Professional care, premium products, and stunning results.</p>
+<a href="https://ab.simplybook.me/v2/#book" class="btn btn-primary">Book Appointment</a>
+<a href="tel:+19292101542" class="btn btn-outline">Call Now</a>
 </div>
 </section>
-<aside class="ladder-section" style="flex:1;">
-<ul id="money-ladder">
-<li data-amt="70000000">15 • ₹7 Crore</li>
-<li data-amt="10000000">14 • ₹1 Crore</li>
-<li data-amt="5000000">13 • ₹50 Lakh</li>
-<li data-amt="2500000">12 • ₹25 Lakh</li>
-<li data-amt="1250000">11 • ₹12.5 Lakh</li>
-<li data-amt="640000">10 • ₹6.4 Lakh</li>
-<li data-amt="320000">9 • ₹3.2 Lakh</li>
-<li data-amt="160000">8 • ₹1.6 Lakh</li>
-<li data-amt="80000">7 • ₹80,000</li>
-<li data-amt="40000">6 • ₹40,000</li>
-<li data-amt="20000">5 • ₹20,000</li>
-<li data-amt="10000">4 • ₹10,000</li>
-<li data-amt="5000" class="active">3 • ₹5,000</li>
-</ul>
-</aside>
-</main>
-<div id="status-msg"></div>
+
+<section id="services">
+<div class="container">
+<div class="section-title"><h2>Our Services</h2></div>
+<div class="services-grid">
+<div class="card">
+<img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f">
+<div class="card-body">
+<h3>Haircut & Styling</h3>
+<p>Modern styles tailored to your personality.</p>
 </div>
-<footer>By Akshat Sinha</footer>
+</div>
+<div class="card">
+<img src="https://images.unsplash.com/photo-1519415943484-9fa1873496d4">
+<div class="card-body">
+<h3>Hair Coloring</h3>
+<p>Premium color treatments with expert care.</p>
+</div>
+</div>
+<div class="card">
+<img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9">
+<div class="card-body">
+<h3>Facial & Skincare</h3>
+<p>Glow-enhancing skincare solutions.</p>
+</div>
+</div>
+<div class="card">
+<img src="https://images.unsplash.com/photo-1519741497674-611481863552">
+<div class="card-body">
+<h3>Makeup Services</h3>
+<p>Flawless makeup for every occasion.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="container">
+<div class="section-title"><h2>Why Choose Us</h2></div>
+<div class="features">
+<div class="feature">Experienced Professionals</div>
+<div class="feature">Premium Products</div>
+<div class="feature">Hygienic Environment</div>
+<div class="feature">Trusted by NYC Clients</div>
+</div>
+</div>
+</section>
+
+<section id="gallery">
+<div class="container">
+<div class="section-title"><h2>Gallery</h2></div>
+<div class="gallery">
+<img src="https://images.unsplash.com/photo-1522337660859-02fbefca4702">
+<img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e">
+<img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15">
+<img src="https://images.unsplash.com/photo-1526045478516-99145907023c">
+</div>
+</div>
+</section>
+
+<section id="reviews">
+<div class="container">
+<div class="section-title"><h2>Client Reviews</h2></div>
+<div class="testimonials">
+<div class="review">
+<div class="stars">★★★★★</div>
+<p>Absolutely amazing service and results!</p>
+</div>
+<div class="review">
+<div class="stars">★★★★★</div>
+<p>Professional staff and beautiful salon.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="cta">
+<h2>Book Your Appointment Today</h2>
+<p>Call us at +1 (929) 210 1542</p>
+<a href="https://ab.simplybook.me/v2/#book" class="btn btn-primary">Schedule Now</a>
+</section>
+
+<section id="contact">
+<div class="container">
+<div class="section-title"><h2>Contact Us</h2></div>
+<div class="contact-grid">
+<div class="contact-info">
+<p><strong>Address:</strong> 100 William St, New York, NY 10038</p>
+<p><strong>Phone:</strong> <a href="tel:+19292101542">+1 (929) 210 1542</a></p>
+<p><strong>Email:</strong> info.americanbeautysalons@gmail.com</p>
+<p><strong>Hours:</strong><br>
+Mon–Fri: 11AM–9PM<br>
+Sat: 11AM–8PM<br>
+Sun: 11AM–7PM
+</p>
+<iframe src="https://maps.google.com/maps?q=100%20William%20St%20New%20York&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="250" style="border:0;border-radius:12px"></iframe>
+</div>
+<form>
+<input type="text" placeholder="Your Name" required>
+<input type="email" placeholder="Your Email" required>
+<textarea placeholder="Message"></textarea>
+<button>Send Message</button>
+</form>
+</div>
+</div>
+</section>
+
+<footer>
+<div class="footer-grid">
+<div>
+<h3>American Beauty Salons</h3>
+<p>Luxury beauty services in New York.</p>
+</div>
+<div>
+<h4>Follow Us</h4>
+<div class="social">
+<a href="https://www.facebook.com/americanbeautysalons/">Facebook</a>
+<a href="https://www.instagram.com/americanbeautysalons/">Instagram</a>
+</div>
+</div>
+</div>
+</footer>
 
 <script>
-let currentQuestionIndex=0;
-const questionBank=[
-{"question":"Which of these is the capital of India?","options":["Mumbai","New Delhi","Kolkata","Chennai"],"correct":1},
-{"question":"Who is known as the Iron Man of India?","options":["Sardar Patel","Nehru","Gandhi","Ambedkar"],"correct":0},
-{"question":"Which planet is known as the Red Planet?","options":["Earth","Venus","Mars","Jupiter"],"correct":2},
-{"question":"What is H2O commonly known as?","options":["Oxygen","Water","Hydrogen","Helium"],"correct":1}
-];
-let moneySteps=[5000,10000,20000,40000,80000,160000,320000,640000,1250000,2500000,5000000,10000000,70000000];
-let timerInterval;
-
-function loadQuestion(q){
-document.getElementById('question-text').innerText=q.question;
-q.options.forEach((opt,i)=>{
-document.getElementById('opt'+i).innerText=opt;
-document.querySelectorAll('.option')[i].style.visibility='visible';
-});
-startTimer();
+function toggleMenu(){
+document.getElementById('menu').classList.toggle('show')
 }
-function selectOption(idx){
-const q=questionBank[currentQuestionIndex];
-if(idx===q.correct){document.querySelectorAll('.option')[idx].classList.add('correct');
-currentQuestionIndex++;updateLadder();
-if(currentQuestionIndex<questionBank.length){setTimeout(()=>loadQuestion(questionBank[currentQuestionIndex]),1500);}
-else{alert("Congratulations! You won all questions!");}
-}else{alert("Wrong Answer! Game Over.");location.reload();}
-}
-function useLifeline(type){
-const correct=questionBank[currentQuestionIndex].correct;
-if(type==='5050'){let hidden=0;document.querySelectorAll('.option').forEach((btn,i)=>{if(i!==correct && hidden<2){btn.style.visibility='hidden';hidden++;}});}
-else if(type==='audience'){alert("Audience poll: 60% correct, 40% wrong");}
-else if(type==='phone'){alert("Phone a friend suggests: Option "+String.fromCharCode(65+correct));}
-}
-function startTimer(){
-clearInterval(timerInterval);let time=30;const timerEl=document.getElementById('timer');timerEl.innerText=time;
-timerInterval=setInterval(()=>{time--;timerEl.innerText=time;if(time<=0){clearInterval(timerInterval);alert("Time Up! Game Over.");location.reload();}},1000);
-}
-function updateLadder(){
-const listItems=document.querySelectorAll('#money-ladder li');listItems.forEach(li=>li.classList.remove('active'));
-let idx=listItems.length-1-currentQuestionIndex;if(idx>=0) listItems[idx].classList.add('active');
-}
-loadQuestion(questionBank[currentQuestionIndex]);
 </script>
+
 </body>
 </html>
